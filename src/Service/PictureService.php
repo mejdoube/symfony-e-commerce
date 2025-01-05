@@ -30,13 +30,13 @@ class PictureService
         // On vérifie le format de l'image
         switch($picture_infos['mime']){
             case 'image/png':
-                $picture_source = imagecreatefrompng($picture);
+                $picture_source = \imagecreatefrompng($picture);
                 break;
             case 'image/jpeg':
-                $picture_source = imagecreatefromjpeg($picture);
+                $picture_source = \imagecreatefromjpeg($picture);
                 break;
             case 'image/webp':
-                $picture_source = imagecreatefromwebp($picture);
+                $picture_source = \imagecreatefromwebp($picture);
                 break;
             default:
                 throw new Exception('Format d\'image incorrect');
