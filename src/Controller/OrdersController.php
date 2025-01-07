@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Orders;
 use App\Entity\OrdersDetails;
+use App\Repository\OrdersDetailsRepository;
+use App\Repository\OrdersRepository;
 use App\Repository\ProductsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,5 +60,17 @@ class OrdersController extends AbstractController
 
         $this->addFlash('message', 'Commande créée avec succès');
         return $this->redirectToRoute('main');
+    }
+
+    #[Route('/toutes', name: 'all')]
+    public function getAllOrders(OrdersDetailsRepository $ordersDetailsRepository): Response
+    {
+        // Fetch all orders from the repository
+        $orders = $ordersDetailsRepository->findAll();
+
+        // Return a response (You can render a template or return a JSON response, as needed)
+        return $this->render('admin/orders/orders.html.twig', [
+            'orders' => $orders,
+        ]);
     }
 }
