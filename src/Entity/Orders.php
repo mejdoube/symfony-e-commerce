@@ -21,6 +21,9 @@ class Orders
     #[ORM\Column(type: 'string', length: 20, unique: true)]
     private $reference;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private $status;  // Status field to store order's status, i.e. 0, 1, or -1
+
     #[ORM\ManyToOne(targetEntity: Coupons::class, inversedBy: 'orders')]
     private $coupons;
 
@@ -35,6 +38,7 @@ class Orders
     {
         $this->ordersDetails = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable();
+        $this->status = '0';  // Default status is '0' (En cours)
     }
 
     public function getId(): ?int
@@ -50,7 +54,6 @@ class Orders
     public function setReference(string $reference): self
     {
         $this->reference = $reference;
-
         return $this;
     }
 
@@ -62,7 +65,6 @@ class Orders
     public function setCoupons(?Coupons $coupons): self
     {
         $this->coupons = $coupons;
-
         return $this;
     }
 
@@ -74,7 +76,6 @@ class Orders
     public function setUsers(?Users $users): self
     {
         $this->users = $users;
-
         return $this;
     }
 
@@ -99,12 +100,24 @@ class Orders
     public function removeOrdersDetail(OrdersDetails $ordersDetail): self
     {
         if ($this->ordersDetails->removeElement($ordersDetail)) {
-            // set the owning side to null (unless already changed)
             if ($ordersDetail->getOrders() === $this) {
                 $ordersDetail->setOrders(null);
             }
         }
 
+        return $this;
+    }
+
+    // Getter for status
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    // Setter for status
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
         return $this;
     }
 }

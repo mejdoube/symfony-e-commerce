@@ -1,20 +1,72 @@
-{% extends 'base.html.twig' %}
+{% extends "base.html.twig" %}
 
-{% block title %}Hello OrdersController!{% endblock %}
+{% block title %}Liste des commandes{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container">
+        <div class="row">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+            <main class="col-9 border border-light bg-white p-2">
+                <h1>Liste des commandes</h1>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Produits</th>
+                        <th>Total</th> {# Add a new column for the total #}
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.createdAt|date('Y-m-d H:i:s') }}</td>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/home/benoit/Documents/Demos/ecommerce-sf6/src/Controller/OrdersController.php'|file_link(0) }}">src/Controller/OrdersController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/home/benoit/Documents/Demos/ecommerce-sf6/templates/orders/index.html.twig'|file_link(0) }}">templates/orders/index.html.twig</a></code></li>
-    </ul>
-</div>
+                            <td>
+                                <ul>
+                                    {% for orderDetail in order.ordersDetails %}
+                                        <li>
+                                            <strong>{{ orderDetail.products.name }}</strong> -
+                                            {{ orderDetail.quantity }} x {{ orderDetail.price }}€ =
+                                            {{ orderDetail.quantity * orderDetail.price }}€
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                {# Calculate the total price of the order #}
+                                {% set total = 0 %}
+                                {% for orderDetail in order.ordersDetails %}
+                                    {% set total = total + (orderDetail.quantity * orderDetail.price) %}
+                                {% endfor %}
+                                <strong>{{ total }}€</strong>
+                            </td>
+                            <td>
+                                {# Display status based on the value of 'status' #}
+                                {% if order.status == 0 %}
+                                    <span>En cours</span>
+                                {% elseif order.status == 1 %}
+                                    <span>Livraison accepté</span>
+                                {% elseif order.status == -1 %}
+                                    <span>Refusé</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <form action="{{ path('app_orders_order_delete', {'id': order.id}) }}" method="POST" style="display:inline;">
+                                    {# Hidden CSRF token for security #}
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </form>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Liste des produits{% endblock %}
+{% block title %}Liste des commandes{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -11,24 +11,59 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Client</th>
-                        <th>Produit</th>
-                        <th>Prix</th>
-                        <th>Catégorie</th>
+                        <th>Produits</th>
+                        <th>Total</th> {# Add a new column for the total #}
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for order in orders %}
                         <tr>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.id }}</td>
-                            <td>{{ order.id }}</td>
+                            <td>{{ order.users.firstname }} {{ order.users.lastname }}</td>  {# Display client's name #}
 
+                            <td>
+                                <ul>
+                                    {% for orderDetail in order.ordersDetails %}
+                                        <li>
+                                            <strong>{{ orderDetail.products.name }}</strong> -
+                                            {{ orderDetail.quantity }} x {{ orderDetail.price }}€ =
+                                            {{ orderDetail.quantity * orderDetail.price }}€
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                {# Calculate the total price of the order #}
+                                {% set total = 0 %}
+                                {% for orderDetail in order.ordersDetails %}
+                                    {% set total = total + (orderDetail.quantity * orderDetail.price) %}
+                                {% endfor %}
+                                <strong>{{ total }}€</strong>
+                            </td>
+                            <td>
+                                {# Display status based on the value of 'status' #}
+                                {% if order.status == 0 %}
+                                    <span>En cours</span>
+                                {% elseif order.status == 1 %}
+                                    <span>Livraison accepté</span>
+                                {% elseif order.status == -1 %}
+                                    <span>Refusé</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {# Show buttons based on the order's status #}
+                                {% if order.status == 0 %}
+                                    <a href="{{ path('app_orders_order_accept', {'id': order.id}) }}" class="btn btn-success">Accepter</a>
+                                    <a href="{{ path('app_orders_order_refuse', {'id': order.id}) }}" class="btn btn-danger">Refuser</a>
+                                {% elseif order.status == 1 %}
+                                    <a href="{{ path('app_orders_order_refuse', {'id': order.id}) }}" class="btn btn-danger">Refuser</a>
+                                {% elseif order.status == -1 %}
+                                    <a href="{{ path('app_orders_order_accept', {'id': order.id}) }}" class="btn btn-success">Accepter</a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

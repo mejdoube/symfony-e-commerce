@@ -8,23 +8,53 @@
             <div class="col-12">
                 <h1>Liste des produits de la catégorie {{ category.name }}</h1>
             </div>
-            {% for product in products.data %}
-                <div class="col-3 mb-3">
-                    <article class="card h-100">
-                        <img src="{{ asset('assets/uploads/products/mini/300x300-' ~ product.images[0].name ) }}" class="card-img-top" alt="{{ product.name }}">
-                        <div class="card-body">
-                            <h2 class="card-title">{{ product.name }}</h2>
-                            <p class="card-text">{{ product.description }}</p>
-                            <a href="{{ path('products_details', {"slug": product.slug }) }}" class="btn btn-primary">Voir les détails</a>
+
+            {# Check if products is iterable (e.g., an array or collection) #}
+            {% if products is iterable %}
+                {# Check if products has the 'data' key (i.e., paginated results) #}
+                {% if attribute(products, 'data') is defined %}
+                    {# If 'data' exists, iterate over it #}
+                    {% for product in products.data %}
+                        <div class="col-3 mb-3">
+                            <article class="card h-100">
+                                <img src="{{ asset('assets/uploads/products/mini/300x300-' ~ product.images[0].name ) }}" class="card-img-top" alt="{{ product.name }}">
+                                <div class="card-body">
+                                    <h2 class="card-title">{{ product.name }}</h2>
+                                    <p class="card-text">{{ product.description }}</p>
+                                    <a href="{{ path('products_details', {"slug": product.slug }) }}" class="btn btn-primary">Voir les détails</a>
+                                </div>
+                            </article>
                         </div>
-                    </article>
-                </div>
-            {% endfor %}
-            {% set path = 'categories_list' %}
-            {% set slug = category.slug %}
-            {% set pages = products.pages %}
-            {% set currentPage = products.page %}
-            {% include "_partials/_pagination.html.twig" %}
+                    {% endfor %}
+                {% elseif products|length > 0 %}
+                    {# If products doesn't have 'data' but is still an iterable collection, iterate directly #}
+                    {% for product in products %}
+                        <div class="col-3 mb-3">
+                            <article class="card h-100">
+                                <img src="{{ asset('assets/uploads/products/mini/300x300-' ~ product.images[0].name ) }}" class="card-img-top" alt="{{ product.name }}">
+                                <div class="card-body">
+                                    <h2 class="card-title">{{ product.name }}</h2>
+                                    <p class="card-text">{{ product.description }}</p>
+                                    <a href="{{ path('products_details', {"slug": product.slug }) }}" class="btn btn-primary">Voir les détails</a>
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Aucun produit trouvé.</p> {# If products is empty #}
+                {% endif %}
+            {% else %}
+                <p>No products found.</p> {# If products is not iterable #}
+            {% endif %}
+
+            {# Handle pagination (only if products is paginated) #}
+            {% if products.pages is defined %}
+                {% set path = 'categories_list' %}
+                {% set slug = category.slug %}
+                {% set pages = products.pages %}
+                {% set currentPage = products.page %}
+                {% include "_partials/_pagination.html.twig" %}
+            {% endif %}
         </section>
     </main>
 {% endblock %}

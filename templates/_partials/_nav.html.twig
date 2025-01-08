@@ -40,9 +40,15 @@
                             <a class="nav-link" href="{{ path('admin_index') }}">Administration</a>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Mon compte</a>
-                    </li>
+
+					{% if app.user %}
+						{% if 'ROLE_USER' in app.user.roles and app.user.roles|length == 1 %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('app_orders_my_orders') }}">Mes commandes</a>
+							</li>
+						{% endif %}
+					{% endif %}
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_logout') }}">Me déconnecter</a>
                     </li>
